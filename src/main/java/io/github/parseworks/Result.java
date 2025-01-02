@@ -24,4 +24,8 @@ public abstract class Result<I, A> {
     public abstract <B> Result<I, B> cast();
 
     public abstract <B> Result<I, B> map(java.util.function.Function<A, B> mapper);
+
+    public String getError() {
+        return "";
+    }
 }

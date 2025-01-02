@@ -38,4 +38,8 @@ public class Failure<I, A> extends Result<I, A> {
     public <B> Result<I, B> map(java.util.function.Function<A, B> mapper) {
         return (Result<I, B>) this;
     }
+
+    public String getError() {
+        return message;
+    }
 }

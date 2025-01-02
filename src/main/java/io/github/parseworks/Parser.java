@@ -222,8 +222,7 @@ public class Parser<I, A> {
                     currentInput = success.next();
                 } else {
                     if (result.getPosition() > in.position()) {
-                        return Trampoline.done(Result.failure(result.next(), "result.getError()"));
-                    }
+                        return Trampoline.done(Result.success(accumulator.reverse(), currentInput));                    }
                     break;
                 }
             }
@@ -355,8 +354,7 @@ public class Parser<I, A> {
                         .many()
         ).map((a, lopA) -> {
             A result = a;
-            while (lopA.hasNext()) {
-                Tuple<BinaryOperator<A>, A> tuple = lopA.next();
+            for (Tuple<BinaryOperator<A>, A> tuple : lopA) {
                 result = tuple.getFirst().apply(result, tuple.getSecond());
             }
             return result;

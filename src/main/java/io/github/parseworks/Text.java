@@ -29,8 +29,7 @@ public class Text {
     public static Parser<Character, Integer> number() {
         return digit().many1().map(chars -> {
             StringBuilder sb = new StringBuilder();
-            while (chars.hasNext()) {
-                Character c = chars.next();
+            for (var c : chars) {
                 sb.append(c);
             }
             return Integer.parseInt(sb.toString());

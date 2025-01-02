@@ -1,7 +1,6 @@
 package io.github.parseworks;
 
 
-
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -16,18 +15,26 @@ public class ApplyBuilder {
             this.pb = pb;
         }
 
-        public <R> Parser<I, R> map(Function<A, Function<B, R>> f) {
+        private <R> Parser<I, R> combine(Function<A, Function<B, R>> f) {
             return new Parser<>(() -> pa.acceptsEOF() && pb.acceptsEOF(), in ->
                     Trampoline.more(() -> pa.apply(in).flatMap(ra ->
-                            Trampoline.more(() -> pb.apply(ra.next()).map(rb ->
-                                    Result.success(f.apply(ra.getOrThrow()).apply(rb.getOrThrow()), rb.next())
-                            ))
+                            Trampoline.more(() -> pb.apply(ra.next()).map(rb -> {
+                                if (ra.isSuccess() && rb.isSuccess()) {
+                                    return Result.success(f.apply(ra.getOrThrow()).apply(rb.getOrThrow()), rb.next());
+                                } else {
+                                    return Result.failure(rb.next(), "Failed to parse");
+                                }
+                            }))
                     ))
             );
         }
 
+        public <R> Parser<I, R> map(Function<A, Function<B, R>> f) {
+            return combine(f);
+        }
+
         public <R> Parser<I, R> map(BiFunction<A, B, R> f) {
-            return map(a -> b -> f.apply(a, b));
+            return combine(a -> b -> f.apply(a, b));
         }
 
         public <C> ApplyBuilder2<I, A, B> andL(Parser<I, C> pc) {
